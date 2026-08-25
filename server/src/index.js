@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 const { body, param, validationResult } = require('express-validator');
 
 dotenv.config();
@@ -11,9 +12,36 @@ const { pool } = require('./db');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me';
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
-app.use(cors({ origin: process.env.CLIENT_URL || '*'}));
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('Origin not allowed by CORS'));
+  },
+}));
 app.use(express.json());
+app.use('/api', apiLimiter);
 
 function handleValidation(req, res, next) {
   const errors = validationResult(req);
@@ -147,6 +175,7 @@ app.post(
 
 app.post(
   '/api/admin/login',
+  authLimiter,
   [body('email').isEmail(), body('password').isLength({ min: 6 })],
   handleValidation,
   async (req, res) => {
@@ -365,6 +394,13 @@ app.patch(
     }
   },
 );
+
+app.use((error, _req, res, next) => {
+  if (error?.message === 'Origin not allowed by CORS') {
+    return res.status(403).json({ message: error.message });
+  }
+  return next(error);
+});
 
 app.use((_req, res) => {
   res.status(404).json({ message: 'Not found' });
