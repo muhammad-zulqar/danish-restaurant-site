@@ -51,7 +51,15 @@ npm install --prefix server
 npm install --prefix client
 ```
 
-### 2) Configure environment variables
+### 2) Start PostgreSQL (Docker)
+
+```bash
+docker compose up -d
+```
+
+This starts a local PostgreSQL database on `localhost:5432`.
+
+### 3) Configure environment variables
 
 Create server env file:
 
@@ -67,7 +75,13 @@ cp /home/runner/work/danish-restaurant-site/danish-restaurant-site/client/.env.e
 
 Update `/home/runner/work/danish-restaurant-site/danish-restaurant-site/server/.env` with your PostgreSQL connection string, JWT secret, and optional admin credentials.
 
-### 3) Initialize database schema + seed data
+For local Docker setup, use:
+
+```env
+DATABASE_URL=postgres://<username>:<password>@localhost:5432/danish_restaurant
+```
+
+### 4) Initialize database schema + seed data
 
 ```bash
 npm run seed
@@ -75,7 +89,7 @@ npm run seed
 
 This creates tables and seeds sample menu items + admin user.
 
-### 4) Run in development
+### 5) Run in development
 
 ```bash
 npm run dev
@@ -83,6 +97,12 @@ npm run dev
 
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:5000`
+
+### 6) Stop PostgreSQL (when done)
+
+```bash
+docker compose down
+```
 
 ## Build
 
