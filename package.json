@@ -1,0 +1,27 @@
+{
+  "name": "danish-restaurant-site",
+  "version": "1.0.0",
+  "description": "Modern luxury PERN stack restaurant website with online reservations, orders, and admin dashboard",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build": "npm run build --prefix client",
+    "seed": "npm run seed --prefix server",
+    "start": "npm run start --prefix server",
+    "lint": "npm run lint --prefix client",
+    "test": "npm run test --prefix server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://localhost:26831/muhammad-zulqar/danish-restaurant-site"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  },
+  "private": true
+}
